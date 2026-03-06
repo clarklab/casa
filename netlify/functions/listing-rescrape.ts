@@ -27,8 +27,13 @@ export default async (req: Request, _context: Context) => {
   }
 
   try {
+    const url = new URL(req.url);
+    const pathParts = url.pathname.split('/');
+    // Path: /api/listings/:id/rescrape → id is second-to-last
+    const id = pathParts[pathParts.length - 2];
+
     const body = await req.json();
-    const { id, passcode } = body;
+    const { passcode } = body;
 
     if (!validatePasscode(passcode)) {
       return unauthorizedResponse();
