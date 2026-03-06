@@ -1,17 +1,16 @@
 import { useState } from 'react';
 import { BottomSheet } from './BottomSheet';
-import { useAddListing } from '@/hooks/useAddListing';
 import { useAuth } from '@/hooks/useAuth';
 import { NAME_OPTIONS } from '@/lib/constants';
 
 interface AddListingSheetProps {
   isOpen: boolean;
   onClose: () => void;
+  onSubmit: (data: { url: string; addedBy: string; passcode: string }) => void;
 }
 
-export function AddListingSheet({ isOpen, onClose }: AddListingSheetProps) {
+export function AddListingSheet({ isOpen, onClose, onSubmit }: AddListingSheetProps) {
   const { getLastName, setLastName, getPasscode } = useAuth();
-  const addListing = useAddListing();
   const [url, setUrl] = useState('');
   const [name, setName] = useState(getLastName() || NAME_OPTIONS[0]);
   const [customName, setCustomName] = useState('');
@@ -19,7 +18,7 @@ export function AddListingSheet({ isOpen, onClose }: AddListingSheetProps) {
 
   const selectedName = name === 'Other' ? customName : name;
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (!url.trim()) {
       setError('Please paste a listing URL');
       return;
@@ -32,22 +31,15 @@ export function AddListingSheet({ isOpen, onClose }: AddListingSheetProps) {
     setError('');
     setLastName(name);
 
-    try {
-      const result = await addListing.mutateAsync({
-        url: url.trim(),
-        addedBy: selectedName.trim(),
-        passcode: getPasscode(),
-      });
+    const data = {
+      url: url.trim(),
+      addedBy: selectedName.trim(),
+      passcode: getPasscode(),
+    };
 
-      if (result.success) {
-        setUrl('');
-        onClose();
-      } else {
-        setError(result.message || 'Failed to add listing');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Failed to add listing');
-    }
+    setUrl('');
+    onClose();
+    onSubmit(data);
   };
 
   return (
@@ -107,10 +99,9 @@ export function AddListingSheet({ isOpen, onClose }: AddListingSheetProps) {
         {/* Submit */}
         <button
           onClick={handleSubmit}
-          disabled={addListing.isPending}
           className="w-full py-3.5 bg-casa-600 hover:bg-casa-700 disabled:bg-slate-300 dark:disabled:bg-slate-700 text-white font-semibold rounded-xl transition-colors"
         >
-          {addListing.isPending ? 'Adding...' : 'Add Home'}
+          Add Home
         </button>
       </div>
     </BottomSheet>

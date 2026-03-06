@@ -1,13 +1,16 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState, useMemo } from 'react';
 import { useListings } from '@/hooks/useListings';
+import { useAddListing } from '@/hooks/useAddListing';
 import { useFilters } from '@/hooks/useFilters';
 import { useSort } from '@/hooks/useSort';
 import { applyFilters } from '@/lib/filters';
 import { ListingCard } from '@/components/ListingCard';
 import { SkeletonCard } from '@/components/SkeletonCard';
 import { AddListingSheet } from '@/components/AddListingSheet';
+import { AddListingProgressModal } from '@/components/AddListingProgressModal';
 import { FilterBar } from '@/components/FilterBar';
+import type { ScrapeRequest, ScrapeResponse } from '@/lib/types';
 
 export const Route = createFileRoute('/_app/listings')({
   component: ListingsPage,
@@ -16,9 +19,51 @@ export const Route = createFileRoute('/_app/listings')({
 function ListingsPage() {
   const navigate = useNavigate();
   const { data: listings, isLoading } = useListings();
+  const addListing = useAddListing();
   const [showAddSheet, setShowAddSheet] = useState(false);
   const { filters, updateFilter, clearFilters, hasFilters } = useFilters();
   const { field, direction, toggleSort, sortListings } = useSort();
+
+  const [progressModal, setProgressModal] = useState<{
+    isOpen: boolean;
+    status: 'loading' | 'success' | 'error';
+    result?: ScrapeResponse;
+    errorMessage?: string;
+    pendingData?: ScrapeRequest;
+  }>({ isOpen: false, status: 'loading' });
+
+  const handleAddSubmit = async (data: ScrapeRequest) => {
+    setProgressModal({ isOpen: true, status: 'loading', pendingData: data });
+
+    try {
+      const result = await addListing.mutateAsync(data);
+      if (result.success) {
+        setProgressModal((prev) => ({ ...prev, status: 'success', result }));
+      } else {
+        setProgressModal((prev) => ({
+          ...prev,
+          status: 'error',
+          errorMessage: result.message || 'Failed to add listing',
+        }));
+      }
+    } catch (err: any) {
+      setProgressModal((prev) => ({
+        ...prev,
+        status: 'error',
+        errorMessage: err.message || 'Failed to add listing',
+      }));
+    }
+  };
+
+  const handleRetry = () => {
+    if (progressModal.pendingData) {
+      handleAddSubmit(progressModal.pendingData);
+    }
+  };
+
+  const handleProgressClose = () => {
+    setProgressModal({ isOpen: false, status: 'loading' });
+  };
 
   const activeListings = useMemo(() => {
     const base = listings?.filter((l) => !l.isArchived) || [];
@@ -118,7 +163,20 @@ function ListingsPage() {
         )}
       </div>
 
-      <AddListingSheet isOpen={showAddSheet} onClose={() => setShowAddSheet(false)} />
+      <AddListingSheet
+        isOpen={showAddSheet}
+        onClose={() => setShowAddSheet(false)}
+        onSubmit={handleAddSubmit}
+      />
+
+      <AddListingProgressModal
+        isOpen={progressModal.isOpen}
+        status={progressModal.status}
+        result={progressModal.result}
+        errorMessage={progressModal.errorMessage}
+        onClose={handleProgressClose}
+        onRetry={handleRetry}
+      />
     </div>
   );
 }
