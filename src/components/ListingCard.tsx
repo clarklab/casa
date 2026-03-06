@@ -76,8 +76,9 @@ export function ListingCard({ listing, isNew }: ListingCardProps) {
           {listing.pricePerSqft && <span>${listing.pricePerSqft}/sqft</span>}
           {listing.yearBuilt && <span>{listing.yearBuilt}</span>}
           {listing.noteCount > 0 && (
-            <span className="ml-auto text-casa-600 dark:text-casa-400 font-medium">
-              📝 {listing.noteCount} note{listing.noteCount !== 1 ? 's' : ''}
+            <span className="ml-auto text-casa-600 dark:text-casa-400 font-medium flex items-center gap-0.5">
+              <span className="material-symbols-outlined" style={{ fontSize: 14 }}>note_stack</span>
+              {listing.noteCount} note{listing.noteCount !== 1 ? 's' : ''}
             </span>
           )}
         </div>

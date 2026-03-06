@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { PASSCODE_LENGTH, AUTH_EXPIRY_DAYS } from '@/lib/constants';
-import { Shader, Dither, FilmGrain, GridDistortion, Sharpness, Swirl } from 'shaders/react';
+import { Shader, Blob, FilmGrain, Swirl, TiltShift, WaveDistortion } from 'shaders/react';
 
 function isAuthenticated(): boolean {
   const stored = localStorage.getItem('casa_auth');
@@ -66,11 +66,14 @@ function PasscodeGate() {
       {/* Shader background */}
       <div className="absolute inset-0 z-0 w-full h-full">
         <Shader style={{ width: '100%', height: '100%' }}>
-          <Swirl blend={30} colorA="#1c034f" colorB="#2b4cf0" colorSpace="oklch" detail={1.2} speed={0.6} />
-          <Dither blendMode="overlay" pixelSize={5} threshold={0.45} />
-          <GridDistortion edges="mirror" gridSize={75} intensity={5} radius={2} />
-          <Sharpness sharpness={1} />
-          <FilmGrain strength={0.05} />
+          <Swirl colorA="#16071f" colorB="#f02b63" colorSpace="oklch" />
+          <WaveDistortion angle={237} edges="wrap" frequency={1.4} strength={0.2} transform={{ scale: 1.3 }}>
+            <WaveDistortion angle={314} edges="mirror" frequency={10} speed={0.3} waveType="sawtooth">
+              <Blob center={{ x: 0.37, y: 0.65 }} deformation={0.7} highlightColor="#ffc61a" highlightX={0.5} size={0.8} softness={1} />
+            </WaveDistortion>
+          </WaveDistortion>
+          <TiltShift angle={155} center={{ x: 0.5, y: 0.45 }} intensity={80} width={0.5} />
+          <FilmGrain strength={0.2} />
         </Shader>
       </div>
 
