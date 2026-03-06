@@ -1,0 +1,17 @@
+{
+  "name": "Casa",
+  "short_name": "Casa",
+  "description": "Visual home bookmarking tool",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0284c7",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

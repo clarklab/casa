@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@theme {
+  --color-casa-50:  #fff5f2;
+  --color-casa-100: #ffe8e1;
+  --color-casa-200: #ffc9b8;
+  --color-casa-300: #ffa58e;
+  --color-casa-400: #ff7a5c;
+  --color-casa-500: #ff5733;
+  --color-casa-600: #f03e18;
+  --color-casa-700: #cc2f10;
+  --color-casa-800: #a52810;
+  --color-casa-900: #882513;
+
+  --font-sans: 'Google Sans Flex', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* View Transitions */
+::view-transition-old(listing-image),
+::view-transition-new(listing-image) {
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.2s;
+}
+
+/* Smooth scrolling on iOS */
+html {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent pull-to-refresh on mobile */
+body {
+  overscroll-behavior-y: contain;
+}
+
+/* Hide scrollbar for filter bar */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Bottom sheet slide up animation */
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* Shake animation for passcode error */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* Safe area padding for notch devices */
+.safe-area-top {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 0.75rem);
+}
