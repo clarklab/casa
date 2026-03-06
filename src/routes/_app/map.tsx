@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { lazy, Suspense, useMemo, useState } from 'react';
-import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import { useMemo, useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useListings } from '@/hooks/useListings';
@@ -15,46 +16,94 @@ export const Route = createFileRoute('/_app/map')({
   component: MapPage,
 });
 
-function createPriceIcon(listing: ListingSummary) {
-  const color = listing.isFavorited ? '#10b981' : '#f03e18';
-  const bgColor = listing.isFavorited ? '#d1fae5' : '#ffe8e1';
+function createPriceIcon(listing: ListingSummary, isSelected: boolean) {
+  const isFav = listing.isFavorited;
+  const color = isFav ? '#10b981' : '#f03e18';
+  const bgColor = isSelected
+    ? (isFav ? '#10b981' : '#f03e18')
+    : (isFav ? '#d1fae5' : '#ffe8e1');
+  const textColor = isSelected ? '#ffffff' : color;
   return L.divIcon({
     className: 'custom-marker',
-    html: `<div style="
-      background: ${bgColor};
-      color: ${color};
-      border: 2px solid ${color};
-      border-radius: 8px;
-      padding: 2px 6px;
-      font-size: 11px;
-      font-weight: 700;
-      white-space: nowrap;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    html: `<div class="price-pill${isSelected ? ' price-pill--active' : ''}" style="
+      background:${bgColor}; color:${textColor};
+      border:2px solid ${color};
     ">${formatPrice(listing.price)}</div>`,
-    iconSize: [0, 0],
-    iconAnchor: [30, 15],
+    iconSize: [60, 32],
+    iconAnchor: [30, 32],
   });
+}
+
+function createClusterIcon(cluster: any) {
+  const count = cluster.getChildCount();
+  return L.divIcon({
+    className: 'custom-marker',
+    html: `<div class="cluster-pill">${count} home${count !== 1 ? 's' : ''}</div>`,
+    iconSize: [80, 32],
+    iconAnchor: [40, 16],
+  });
+}
+
+function MapController({ target }: { target: [number, number] | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (target) map.flyTo(target, 14, { duration: 0.8 });
+  }, [target, map]);
+  return null;
 }
 
 function MapPage() {
   const navigate = useNavigate();
   const { data: listings } = useListings();
   const { filters } = useFilters();
-  const [selected, setSelected] = useState<ListingSummary | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const activeListings = useMemo(() => {
     const base = listings?.filter((l) => !l.isArchived) || [];
     return applyFilters(base, filters);
   }, [listings, filters]);
 
+  const mappable = useMemo(
+    () => activeListings.filter((l) => l.latitude && l.longitude),
+    [activeListings],
+  );
+
+  // Reset selection when listings change
+  useEffect(() => {
+    setSelectedIndex(null);
+  }, [mappable.length]);
+
+  const selected = selectedIndex !== null ? mappable[selectedIndex] : null;
+
+  const flyTarget: [number, number] | null = selected
+    ? [selected.latitude, selected.longitude]
+    : null;
+
   // Calculate center from listings, or use default
   const center = useMemo(() => {
-    const validListings = activeListings.filter((l) => l.latitude && l.longitude);
-    if (validListings.length === 0) return DEFAULT_MAP_CENTER;
-    const avgLat = validListings.reduce((s, l) => s + l.latitude, 0) / validListings.length;
-    const avgLng = validListings.reduce((s, l) => s + l.longitude, 0) / validListings.length;
+    if (mappable.length === 0) return DEFAULT_MAP_CENTER;
+    const avgLat = mappable.reduce((s, l) => s + l.latitude, 0) / mappable.length;
+    const avgLng = mappable.reduce((s, l) => s + l.longitude, 0) / mappable.length;
     return [avgLng, avgLat] as [number, number];
-  }, [activeListings]);
+  }, [mappable]);
+
+  function selectByIndex(idx: number) {
+    setSelectedIndex(idx);
+  }
+
+  function goPrev() {
+    if (mappable.length === 0) return;
+    setSelectedIndex((prev) =>
+      prev === null || prev === 0 ? mappable.length - 1 : prev - 1,
+    );
+  }
+
+  function goNext() {
+    if (mappable.length === 0) return;
+    setSelectedIndex((prev) =>
+      prev === null || prev === mappable.length - 1 ? 0 : prev + 1,
+    );
+  }
 
   return (
     <div className="h-dvh flex flex-col bg-white dark:bg-slate-950">
@@ -85,49 +134,83 @@ function MapPage() {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
           />
-          {activeListings
-            .filter((l) => l.latitude && l.longitude)
-            .map((listing) => (
+          <MapController target={flyTarget} />
+          <MarkerClusterGroup
+            iconCreateFunction={createClusterIcon}
+            maxClusterRadius={60}
+            spiderfyOnMaxZoom
+            showCoverageOnHover={false}
+            zoomToBoundsOnClick
+          >
+            {mappable.map((listing, idx) => (
               <Marker
                 key={listing.id}
                 position={[listing.latitude, listing.longitude]}
-                icon={createPriceIcon(listing)}
+                icon={createPriceIcon(listing, selectedIndex === idx)}
                 eventHandlers={{
-                  click: () => setSelected(listing),
+                  click: () => selectByIndex(idx),
                 }}
               />
             ))}
+          </MarkerClusterGroup>
         </MapContainer>
 
-        {/* Mini card popup */}
+        {/* Bottom card + nav */}
         {selected && (
           <div className="absolute bottom-4 left-4 right-4 z-[1000]">
-            <div
-              onClick={() => navigate({ to: '/listings/$id', params: { id: selected.id } })}
-              className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden flex cursor-pointer active:scale-[0.98] transition-transform"
-            >
-              {selected.imageKeys[0] && (
-                <img
-                  src={api.getImageUrl(selected.imageKeys[0])}
-                  alt={selected.address}
-                  className="w-24 h-24 object-cover flex-shrink-0"
-                />
-              )}
-              <div className="p-3 flex-1 min-w-0">
-                <p className="text-base font-bold text-slate-900 dark:text-white">
-                  {formatPriceFull(selected.price)}
-                </p>
-                <p className="text-sm text-slate-700 dark:text-slate-300 truncate">{selected.address}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {selected.bedrooms} bd · {selected.bathrooms} ba · {selected.sqft.toLocaleString()} sqft
-                </p>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+              {/* Nav arrows + card */}
+              <div className="flex items-stretch">
+                {/* Prev button */}
+                <button
+                  onClick={goPrev}
+                  className="flex items-center justify-center px-3 text-slate-400 hover:text-casa-500 active:bg-slate-100 dark:active:bg-slate-800 transition-colors border-r border-slate-200 dark:border-slate-700"
+                  aria-label="Previous listing"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                </button>
+
+                {/* Card content */}
+                <div
+                  onClick={() => navigate({ to: '/listings/$id', params: { id: selected.id } })}
+                  className="flex-1 flex items-center cursor-pointer active:bg-slate-50 dark:active:bg-slate-800/50 transition-colors min-w-0"
+                >
+                  {selected.imageKeys[0] && (
+                    <img
+                      src={api.getImageUrl(selected.imageKeys[0])}
+                      alt={selected.address}
+                      className="w-20 h-20 object-cover flex-shrink-0"
+                    />
+                  )}
+                  <div className="p-3 flex-1 min-w-0">
+                    <p className="text-base font-bold text-slate-900 dark:text-white">
+                      {formatPriceFull(selected.price)}
+                    </p>
+                    <p className="text-sm text-slate-700 dark:text-slate-300 truncate">{selected.address}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {selected.bedrooms} bd · {selected.bathrooms} ba · {selected.sqft.toLocaleString()} sqft
+                    </p>
+                  </div>
+                </div>
+
+                {/* Next button */}
+                <button
+                  onClick={goNext}
+                  className="flex items-center justify-center px-3 text-slate-400 hover:text-casa-500 active:bg-slate-100 dark:active:bg-slate-800 transition-colors border-l border-slate-200 dark:border-slate-700"
+                  aria-label="Next listing"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 6 15 12 9 18" />
+                  </svg>
+                </button>
               </div>
-              <button
-                onClick={(e) => { e.stopPropagation(); setSelected(null); }}
-                className="p-2 self-start text-slate-400"
-              >
-                ✕
-              </button>
+
+              {/* Counter */}
+              <div className="text-center text-[11px] text-slate-400 dark:text-slate-500 py-1 border-t border-slate-100 dark:border-slate-800">
+                {selectedIndex! + 1} of {mappable.length}
+              </div>
             </div>
           </div>
         )}
