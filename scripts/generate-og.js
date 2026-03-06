@@ -9,14 +9,18 @@ const housePath = 'M80-200v-360l160-160h40v-80h80v80h360l160 160v360H80Zm560-80h
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630">
   <rect width="1200" height="630" fill="#ff5733"/>
-  <g transform="translate(480, 100) scale(0.25)">
-    <svg viewBox="0 -960 960 960" width="960" height="960">
-      <path d="${housePath}" fill="#000000"/>
-    </svg>
+  <!-- House icon + Casa in a single row, vertically centered -->
+  <g transform="translate(340, 215)">
+    <!-- House icon scaled to ~200px tall, anchored to baseline -->
+    <g transform="scale(0.21)">
+      <svg viewBox="0 -960 960 960" width="960" height="960">
+        <path d="${housePath}" fill="#000000"/>
+      </svg>
+    </g>
+    <!-- Casa text beside the icon -->
+    <text x="240" y="155" font-family="Google Sans Flex, sans-serif"
+      font-weight="700" font-size="140" letter-spacing="6" fill="#ffffff">Casa</text>
   </g>
-  <text x="600" y="480" text-anchor="middle"
-    font-family="Google Sans Flex, sans-serif" font-weight="700"
-    font-size="96" fill="#ffffff">Casa</text>
 </svg>`;
 
 const outputPath = join(__dirname, '..', 'public', 'og-image.png');
