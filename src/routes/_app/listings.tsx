@@ -37,6 +37,7 @@ function ListingsPage() {
 
     try {
       const result = await addListing.mutateAsync(data);
+      console.log('[listings] mutateAsync resolved, result:', result.success, result.listing?.id);
       if (result.success) {
         setProgressModal((prev) => ({ ...prev, status: 'success', result }));
       } else {

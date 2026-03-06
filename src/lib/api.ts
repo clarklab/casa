@@ -36,7 +36,9 @@ export const api = {
   },
 
   getListings() {
-    return fetchJSON<ListingsResponse>(`${API_BASE}/listings`);
+    return fetchJSON<ListingsResponse>(`${API_BASE}/listings`, {
+      cache: 'no-cache',
+    });
   },
 
   getListing(id: string) {

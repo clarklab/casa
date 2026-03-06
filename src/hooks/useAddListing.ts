@@ -7,7 +7,8 @@ export function useAddListing() {
 
   return useMutation({
     mutationFn: (data: ScrapeRequest) => api.scrape(data),
-    onSuccess: () => {
+    onSuccess: (result) => {
+      console.log('[useAddListing] onSuccess fired, invalidating listings query', result);
       queryClient.invalidateQueries({ queryKey: ['listings'] });
     },
   });
