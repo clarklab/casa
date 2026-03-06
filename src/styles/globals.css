@@ -107,6 +107,11 @@ body {
   100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
 }
 
+/* Star fill glow during drag */
+.star-glow {
+  filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.6));
+}
+
 /* Leaflet custom marker — clear default div-icon styling */
 .custom-marker {
   background: none;
