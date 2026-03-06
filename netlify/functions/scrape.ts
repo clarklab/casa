@@ -4,7 +4,7 @@ import { getListingsStore } from './lib/blobs';
 import { addListingToIndex, getIndex } from './lib/index-manager';
 import type { Listing, ParsedListingData } from './lib/types';
 import { fetchPage } from './parsers/utils/fetch';
-import { selectBest4Photos } from './parsers/utils/photos';
+import { selectBestPhotos } from './parsers/utils/photos';
 import { processAndStoreImages } from './parsers/utils/images';
 import { parseRedfin, parseRedfinFromApi } from './parsers/redfin';
 import { parseZillow } from './parsers/zillow';
@@ -95,7 +95,7 @@ export default async (req: Request, _context: Context) => {
     console.log(`Parsed: ${parsed.address}, ${parsed.city} - $${parsed.price}, ${parsed.photos.length} photos`);
 
     // Select best 4 photos
-    const bestPhotos = selectBest4Photos(parsed.photos);
+    const bestPhotos = selectBestPhotos(parsed.photos);
     console.log(`Selected ${bestPhotos.length} best photos`);
 
     // Generate listing ID

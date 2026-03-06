@@ -62,20 +62,22 @@ function scorePhoto(photo: PhotoCandidate, index: number): number {
   return score;
 }
 
-export function selectBest4Photos(photos: PhotoCandidate[]): PhotoCandidate[] {
-  if (photos.length <= 4) return photos;
+const MAX_PHOTOS = 24;
+
+export function selectBestPhotos(photos: PhotoCandidate[]): PhotoCandidate[] {
+  if (photos.length <= MAX_PHOTOS) return photos;
 
   // Filter out junk
   const clean = photos.filter((p) => !isJunk(p));
 
-  if (clean.length <= 4) {
+  if (clean.length <= MAX_PHOTOS) {
     // Not enough clean photos, backfill from originals
     const result = [...clean];
     for (const p of photos) {
-      if (result.length >= 4) break;
+      if (result.length >= MAX_PHOTOS) break;
       if (!result.includes(p)) result.push(p);
     }
-    return result.slice(0, 4);
+    return result.slice(0, MAX_PHOTOS);
   }
 
   // Score and sort
@@ -87,12 +89,12 @@ export function selectBest4Photos(photos: PhotoCandidate[]): PhotoCandidate[] {
 
   scored.sort((a, b) => b.score - a.score);
 
-  // Pick top 4 but try to diversify room types
+  // Pick top photos but try to diversify room types early
   const selected: typeof scored = [];
   const usedRoomTypes = new Set<string>();
 
   for (const item of scored) {
-    if (selected.length >= 4) break;
+    if (selected.length >= MAX_PHOTOS) break;
 
     const text = [item.photo.caption, ...(item.photo.tags || [])].join(' ').toLowerCase();
     let roomType = 'unknown';
@@ -103,8 +105,8 @@ export function selectBest4Photos(photos: PhotoCandidate[]): PhotoCandidate[] {
       }
     }
 
-    // Skip if we already have this room type (unless we don't have 4 yet and are running low)
-    if (usedRoomTypes.has(roomType) && scored.length - scored.indexOf(item) > 4 - selected.length) {
+    // Skip if we already have this room type (unless we're running low on candidates)
+    if (usedRoomTypes.has(roomType) && scored.length - scored.indexOf(item) > MAX_PHOTOS - selected.length) {
       continue;
     }
 
@@ -112,10 +114,10 @@ export function selectBest4Photos(photos: PhotoCandidate[]): PhotoCandidate[] {
     usedRoomTypes.add(roomType);
   }
 
-  // If we don't have 4 yet, backfill from remaining scored photos
-  if (selected.length < 4) {
+  // Backfill if needed
+  if (selected.length < MAX_PHOTOS) {
     for (const item of scored) {
-      if (selected.length >= 4) break;
+      if (selected.length >= MAX_PHOTOS) break;
       if (!selected.includes(item)) selected.push(item);
     }
   }
