@@ -94,6 +94,19 @@ body {
   100% { box-shadow: 0 0 0 0 rgba(255, 87, 51, 0); }
 }
 
+/* Star rating pop */
+@keyframes starPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.5); }
+  100% { transform: scale(1); }
+}
+
+/* Mini confetti particle */
+@keyframes starConfetti {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
+
 /* Leaflet custom marker — clear default div-icon styling */
 .custom-marker {
   background: none;

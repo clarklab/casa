@@ -16,7 +16,6 @@ export function applyFilters(listings: ListingSummary[], filters: FilterState): 
     if (filters.hoaMax === null && l.hoaMonthly !== null) return false; // no HOA only
     if (typeof filters.hoaMax === 'number' && (l.hoaMonthly || 0) > filters.hoaMax) return false;
     if (filters.daysMax && (l.daysOnMarket || 0) > filters.daysMax) return false;
-    if (filters.favoritedOnly && !l.isFavorited) return false;
     if (filters.ratingMin && (l.rating || 0) < filters.ratingMin) return false;
     if (filters.tags?.length && !filters.tags.some((t) => l.tags.includes(t))) return false;
     return true;
@@ -34,7 +33,6 @@ export function getActiveFilterCount(filters: FilterState): number {
   if (filters.statuses?.length) count++;
   if (filters.hoaMax !== undefined) count++;
   if (filters.daysMax) count++;
-  if (filters.favoritedOnly) count++;
   if (filters.ratingMin) count++;
   if (filters.tags?.length) count++;
   return count;

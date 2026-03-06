@@ -49,10 +49,6 @@ function ListingDetailPage() {
     );
   }
 
-  const handleFavorite = () => {
-    updateListing.mutate({ id, updates: { isFavorited: !listing.isFavorited } });
-  };
-
   const handleRating = (name: string, value: number) => {
     const newRatings = { ...(listing.ratings || {}), [name]: value };
     // If rating is 0, remove that person's rating
@@ -98,14 +94,7 @@ function ListingDetailPage() {
           </svg>
           Back
         </button>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleFavorite}
-            className={`text-xl ${listing.isFavorited ? 'text-red-500' : 'text-slate-400'}`}
-          >
-            {listing.isFavorited ? '♥' : '♡'}
-          </button>
-        </div>
+        <div className="w-8" />
       </header>
 
       {/* Image carousel */}

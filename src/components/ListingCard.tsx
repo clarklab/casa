@@ -5,7 +5,6 @@ import { haversineDistance } from '@/lib/geo';
 import { FRIENDS_LOCATION } from '@/lib/constants';
 import { ImageCarousel } from './ImageCarousel';
 import { RatingStars } from './RatingStars';
-import { useUpdateListing } from '@/hooks/useUpdateListing';
 
 interface ListingCardProps {
   listing: ListingSummary;
@@ -14,15 +13,6 @@ interface ListingCardProps {
 
 export function ListingCard({ listing, isNew }: ListingCardProps) {
   const navigate = useNavigate();
-  const updateListing = useUpdateListing();
-
-  const handleFavorite = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    updateListing.mutate({
-      id: listing.id,
-      updates: { isFavorited: !listing.isFavorited },
-    });
-  };
 
   const statusBadge = listing.status !== 'active' ? (
     <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
@@ -66,17 +56,7 @@ export function ListingCard({ listing, isNew }: ListingCardProps) {
             </span>
             {statusBadge}
           </div>
-          <div className="flex items-center gap-2">
-            <RatingStars rating={listing.rating} />
-            <button
-              onClick={handleFavorite}
-              className={`text-xl transition-colors active:scale-110 ${
-                listing.isFavorited ? 'text-red-500' : 'text-slate-300 dark:text-slate-600'
-              }`}
-            >
-              {listing.isFavorited ? '♥' : '♡'}
-            </button>
-          </div>
+          <RatingStars rating={listing.rating} />
         </div>
 
         {/* Address */}

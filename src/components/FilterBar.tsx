@@ -84,14 +84,6 @@ export function FilterBar({
             {icon('aspect_ratio')} Sqft
           </button>
 
-          {/* Favorites */}
-          <button
-            onClick={() => onUpdateFilter('favoritedOnly', filters.favoritedOnly ? undefined : true)}
-            className={pillClass(!!filters.favoritedOnly)}
-          >
-            {icon('heart_check')} Favs
-          </button>
-
           {/* Rating */}
           <button onClick={() => setActiveSheet('rating')} className={pillClass(!!filters.ratingMin)}>
             {icon('family_star')} {filters.ratingMin ? `${filters.ratingMin}+` : 'Rating'}

@@ -17,17 +17,13 @@ export const Route = createFileRoute('/_app/map')({
 });
 
 function createPriceIcon(listing: ListingSummary, isSelected: boolean) {
-  const isFav = listing.isFavorited;
-  const color = isFav ? '#10b981' : '#f03e18';
-  const bgColor = isSelected
-    ? (isFav ? '#10b981' : '#f03e18')
-    : (isFav ? '#d1fae5' : '#ffe8e1');
-  const textColor = isSelected ? '#ffffff' : color;
+  const bgColor = isSelected ? '#f03e18' : '#ffe8e1';
+  const textColor = isSelected ? '#ffffff' : '#f03e18';
   return L.divIcon({
     className: 'custom-marker',
     html: `<div class="price-pill${isSelected ? ' price-pill--active' : ''}" style="
       background:${bgColor}; color:${textColor};
-      border:2px solid ${color};
+      border:2px solid #f03e18;
     ">${formatPrice(listing.price)}</div>`,
     iconSize: [60, 32],
     iconAnchor: [30, 32],

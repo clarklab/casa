@@ -173,7 +173,6 @@ export interface FilterState {
   statuses?: string[];
   hoaMax?: number | null; // null = no HOA only
   daysMax?: number;
-  favoritedOnly?: boolean;
   ratingMin?: number;
   tags?: string[];
 }
