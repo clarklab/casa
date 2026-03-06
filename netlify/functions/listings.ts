@@ -11,6 +11,7 @@ export default async (req: Request, _context: Context) => {
 
   try {
     const index = await getIndex();
+    console.log(`[listings] returning ${index.listings.length} listings, ids: ${index.listings.map(l => l.id.slice(0, 8)).join(', ')}`);
     return new Response(JSON.stringify({ listings: index.listings }), {
       status: 200,
       headers: {
