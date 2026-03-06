@@ -9,9 +9,10 @@ import { useUpdateListing } from '@/hooks/useUpdateListing';
 
 interface ListingCardProps {
   listing: ListingSummary;
+  isNew?: boolean;
 }
 
-export function ListingCard({ listing }: ListingCardProps) {
+export function ListingCard({ listing, isNew }: ListingCardProps) {
   const navigate = useNavigate();
   const updateListing = useUpdateListing();
 
@@ -42,6 +43,10 @@ export function ListingCard({ listing }: ListingCardProps) {
     <div
       onClick={() => navigate({ to: '/listings/$id', params: { id: listing.id } })}
       className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden active:scale-[0.99] transition-transform cursor-pointer"
+      style={isNew ? {
+        animation: 'cardReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both, glowPulse 0.6s ease-out 0.35s both',
+        willChange: 'transform, opacity, box-shadow',
+      } : undefined}
     >
       {/* Image carousel */}
       <ImageCarousel

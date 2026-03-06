@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useListings } from '@/hooks/useListings';
 import { useAddListing } from '@/hooks/useAddListing';
 import { useFilters } from '@/hooks/useFilters';
@@ -61,9 +61,23 @@ function ListingsPage() {
     }
   };
 
+  const [newListingId, setNewListingId] = useState<string | null>(null);
+
   const handleProgressClose = () => {
+    const newId = progressModal.result?.listing?.id;
     setProgressModal({ isOpen: false, status: 'loading' });
+    if (newId) {
+      setNewListingId(newId);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
+
+  // Clear the highlight after animation completes
+  useEffect(() => {
+    if (!newListingId) return;
+    const timer = setTimeout(() => setNewListingId(null), 1200);
+    return () => clearTimeout(timer);
+  }, [newListingId]);
 
   const activeListings = useMemo(() => {
     const base = listings?.filter((l) => !l.isArchived) || [];
@@ -158,7 +172,7 @@ function ListingsPage() {
           </div>
         ) : (
           activeListings.map((listing) => (
-            <ListingCard key={listing.id} listing={listing} />
+            <ListingCard key={listing.id} listing={listing} isNew={listing.id === newListingId} />
           ))
         )}
       </div>
