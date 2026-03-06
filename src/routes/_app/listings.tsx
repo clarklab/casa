@@ -1,10 +1,12 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState, useMemo, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useListings } from '@/hooks/useListings';
 import { useAddListing } from '@/hooks/useAddListing';
 import { useFilters } from '@/hooks/useFilters';
 import { useSort } from '@/hooks/useSort';
 import { applyFilters } from '@/lib/filters';
+import { api } from '@/lib/api';
 import { ListingCard } from '@/components/ListingCard';
 import { SkeletonCard } from '@/components/SkeletonCard';
 import { AddListingSheet } from '@/components/AddListingSheet';
@@ -18,6 +20,7 @@ export const Route = createFileRoute('/_app/listings')({
 
 function ListingsPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: listings, isLoading } = useListings();
   const addListing = useAddListing();
   const [showAddSheet, setShowAddSheet] = useState(false);
@@ -37,8 +40,19 @@ function ListingsPage() {
 
     try {
       const result = await addListing.mutateAsync(data);
-      console.log('[listings] mutateAsync resolved, result:', result.success, result.listing?.id);
-      if (result.success) {
+      if (result.success && result.listing) {
+        // Poll /api/listings until the new listing appears in the server
+        // response. The blob store has a read-after-write consistency gap
+        // in netlify dev, so the index may not be updated immediately.
+        const newId = result.listing.id;
+        for (let i = 0; i < 15; i++) {
+          const fresh = await api.getListings();
+          if (fresh.listings.some((l) => l.id === newId)) {
+            queryClient.setQueryData(['listings'], fresh);
+            break;
+          }
+          await new Promise((r) => setTimeout(r, 400));
+        }
         setProgressModal((prev) => ({ ...prev, status: 'success', result }));
       } else {
         setProgressModal((prev) => ({
