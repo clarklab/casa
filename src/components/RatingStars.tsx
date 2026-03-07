@@ -50,10 +50,14 @@ export function RatingStars({ rating = 0, onChange, size = 'sm' }: RatingStarsPr
   const [previewRating, setPreviewRating] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
+  const lastUserCommitTime = useRef(0);
 
-  // Sync local rating when the prop changes (e.g. after server response)
+  // Only sync from prop if the user hasn't interacted recently (>3s ago).
+  // This prevents query refetches from clobbering the user's selection.
   useEffect(() => {
-    setLocalRating(rating);
+    if (Date.now() - lastUserCommitTime.current > 3000) {
+      setLocalRating(rating);
+    }
   }, [rating]);
 
   const displayRating = previewRating ?? localRating;
@@ -69,7 +73,8 @@ export function RatingStars({ rating = 0, onChange, size = 'sm' }: RatingStarsPr
 
   const commitRating = useCallback((star: number) => {
     const newRating = star === localRating ? 0 : star;
-    // Immediately set local state so stars stay put
+    // Lock local state so no prop sync can override for 3 seconds
+    lastUserCommitTime.current = Date.now();
     setLocalRating(newRating);
     onChange?.(newRating);
     if (newRating > 0) {
@@ -101,6 +106,7 @@ export function RatingStars({ rating = 0, onChange, size = 'sm' }: RatingStarsPr
     if (!isDragging.current) return;
     const finalRating = previewRating ?? 0;
     const newRating = finalRating === localRating ? 0 : finalRating;
+    lastUserCommitTime.current = Date.now();
     setLocalRating(newRating);
     onChange?.(newRating);
     if (newRating > 0) {
