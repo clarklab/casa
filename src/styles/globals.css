@@ -97,19 +97,22 @@ body {
 /* Star rating pop */
 @keyframes starPop {
   0% { transform: scale(1); }
-  40% { transform: scale(1.5); }
+  30% { transform: scale(1.8); }
+  60% { transform: scale(0.9); }
+  80% { transform: scale(1.15); }
   100% { transform: scale(1); }
 }
 
-/* Mini confetti particle */
+/* Confetti particle burst */
 @keyframes starConfetti {
   0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+  60% { opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0.3); opacity: 0; }
 }
 
 /* Star fill glow during drag */
 .star-glow {
-  filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.6));
+  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.8));
 }
 
 /* Leaflet custom marker — clear default div-icon styling */
