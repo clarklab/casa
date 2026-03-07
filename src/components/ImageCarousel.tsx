@@ -1,4 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
+import { Stepper, useAutoPlay } from 'pasito/react';
+import 'pasito/styles.css';
 import { api } from '@/lib/api';
 
 interface ImageCarouselProps {
@@ -6,15 +8,36 @@ interface ImageCarouselProps {
   alt: string;
   className?: string;
   viewTransitionName?: string;
+  /** Max dots to show before windowing kicks in (default: 7) */
+  maxDots?: number;
+  /** Auto-advance interval in ms. 0 = disabled. (default: 0) */
+  autoPlayInterval?: number;
 }
 
-export function ImageCarousel({ imageKeys, alt, className = '', viewTransitionName }: ImageCarouselProps) {
+export function ImageCarousel({
+  imageKeys,
+  alt,
+  className = '',
+  viewTransitionName,
+  maxDots = 7,
+  autoPlayInterval = 0,
+}: ImageCarouselProps) {
   const [current, setCurrent] = useState(0);
   const touchStart = useRef<number | null>(null);
   const touchEnd = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const total = imageKeys.length;
   const minSwipeDistance = 50;
+
+  const autoPlay = useAutoPlay({
+    count: total,
+    active: current,
+    onStepChange: setCurrent,
+    stepDuration: autoPlayInterval || 3000,
+    loop: true,
+    enabled: autoPlayInterval > 0 && total > 1,
+  });
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     touchEnd.current = null;
@@ -30,14 +53,14 @@ export function ImageCarousel({ imageKeys, alt, className = '', viewTransitionNa
     const distance = touchStart.current - touchEnd.current;
     if (Math.abs(distance) < minSwipeDistance) return;
 
-    if (distance > 0 && current < imageKeys.length - 1) {
-      setCurrent((c) => c + 1);
+    if (distance > 0 && current < total - 1) {
+      setCurrent(current + 1);
     } else if (distance < 0 && current > 0) {
-      setCurrent((c) => c - 1);
+      setCurrent(current - 1);
     }
-  }, [current, imageKeys.length]);
+  }, [current, total]);
 
-  if (imageKeys.length === 0) {
+  if (total === 0) {
     return (
       <div className={`bg-slate-200 dark:bg-slate-800 flex items-center justify-center ${className}`}>
         <span className="text-slate-400 text-4xl">🏠</span>
@@ -69,19 +92,18 @@ export function ImageCarousel({ imageKeys, alt, className = '', viewTransitionNa
         ))}
       </div>
 
-      {/* Dot indicators */}
-      {imageKeys.length > 1 && (
-        <div className="absolute bottom-2.5 left-0 right-0 flex justify-center gap-1.5">
-          {imageKeys.map((_, i) => (
-            <button
-              key={i}
-              onClick={(e) => { e.stopPropagation(); setCurrent(i); }}
-              className={`w-1.5 h-1.5 rounded-full transition-all ${
-                i === current ? 'bg-white w-3' : 'bg-white/50'
-              }`}
-              aria-label={`View photo ${i + 1}`}
-            />
-          ))}
+      {/* Pasito stepper dots */}
+      {total > 1 && (
+        <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+          <Stepper
+            count={total}
+            active={current}
+            onStepClick={setCurrent}
+            maxVisible={maxDots}
+            filling={autoPlay.filling}
+            fillDuration={autoPlay.fillDuration}
+            className="pasito-carousel"
+          />
         </div>
       )}
     </div>
