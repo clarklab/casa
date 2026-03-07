@@ -32,9 +32,14 @@ export function useUpdateListing() {
           }),
         });
       }
-      // Optimistically update the detail query so the rating sticks immediately
+      // Optimistically update the detail query so the rating sticks immediately.
+      // Query data shape is { listing: { ...fields } } (before select extracts .listing).
       if (prevDetail) {
-        queryClient.setQueryData(['listing', id], { ...prevDetail, ...updates });
+        const detail = prevDetail as { listing: Record<string, any> };
+        queryClient.setQueryData(['listing', id], {
+          ...detail,
+          listing: { ...detail.listing, ...updates },
+        });
       }
       return { prev, prevDetail };
     },
