@@ -13,7 +13,9 @@ export function useUpdateListing() {
       }),
     onMutate: async ({ id, updates }) => {
       await queryClient.cancelQueries({ queryKey: ['listings'] });
+      await queryClient.cancelQueries({ queryKey: ['listing', id] });
       const prev = queryClient.getQueryData(['listings']) as { listings: ListingSummary[] } | undefined;
+      const prevDetail = queryClient.getQueryData(['listing', id]) as Record<string, any> | undefined;
       if (prev) {
         queryClient.setQueryData(['listings'], {
           listings: prev.listings.map((l) => {
@@ -30,11 +32,18 @@ export function useUpdateListing() {
           }),
         });
       }
-      return { prev };
+      // Optimistically update the detail query so the rating sticks immediately
+      if (prevDetail) {
+        queryClient.setQueryData(['listing', id], { ...prevDetail, ...updates });
+      }
+      return { prev, prevDetail };
     },
-    onError: (_err, _vars, context) => {
+    onError: (_err, { id }, context) => {
       if (context?.prev) {
         queryClient.setQueryData(['listings'], context.prev);
+      }
+      if (context?.prevDetail) {
+        queryClient.setQueryData(['listing', id], context.prevDetail);
       }
     },
     onSettled: (_data, _err, { id }) => {
