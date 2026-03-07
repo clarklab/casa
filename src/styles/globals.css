@@ -153,6 +153,19 @@ body {
   line-height: 1.6;
 }
 
+/* Pasito stepper — themed for carousel overlay on images */
+.pasito-carousel {
+  --pill-dot-size: 6px;
+  --pill-active-width: 20px;
+  --pill-gap: 4px;
+  --pill-bg: rgba(255, 255, 255, 0.45);
+  --pill-active-bg: rgba(255, 255, 255, 0.35);
+  --pill-fill-bg: rgba(255, 255, 255, 1);
+  --pill-container-bg: transparent;
+  --pill-container-border: transparent;
+  --pill-container-radius: 999px;
+}
+
 /* Safe area padding for notch devices */
 .safe-area-top {
   padding-top: calc(env(safe-area-inset-top, 0px) + 0.75rem);

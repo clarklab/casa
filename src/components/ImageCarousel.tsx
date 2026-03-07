@@ -1,4 +1,6 @@
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { useState, useRef, useCallback } from 'react';
+import { Stepper, useAutoPlay } from 'pasito/react';
+import 'pasito/styles.css';
 import { api } from '@/lib/api';
 
 interface ImageCarouselProps {
@@ -21,37 +23,21 @@ export function ImageCarousel({
   autoPlayInterval = 0,
 }: ImageCarouselProps) {
   const [current, setCurrent] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
   const touchStart = useRef<number | null>(null);
   const touchEnd = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [autoPlayKey, setAutoPlayKey] = useState(0);
 
   const total = imageKeys.length;
   const minSwipeDistance = 50;
 
-  // Auto-advance
-  useEffect(() => {
-    if (autoPlayInterval <= 0 || total <= 1 || isHovered) {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
-      return;
-    }
-
-    autoPlayRef.current = setInterval(() => {
-      setCurrent((c) => (c + 1) % total);
-      setAutoPlayKey((k) => k + 1);
-    }, autoPlayInterval);
-
-    return () => {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
-    };
-  }, [autoPlayInterval, total, isHovered]);
-
-  const goTo = useCallback((index: number) => {
-    setCurrent(index);
-    setAutoPlayKey((k) => k + 1);
-  }, []);
+  const autoPlay = useAutoPlay({
+    count: total,
+    active: current,
+    onStepChange: setCurrent,
+    stepDuration: autoPlayInterval || 3000,
+    loop: true,
+    enabled: autoPlayInterval > 0 && total > 1,
+  });
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     touchEnd.current = null;
@@ -68,32 +54,11 @@ export function ImageCarousel({
     if (Math.abs(distance) < minSwipeDistance) return;
 
     if (distance > 0 && current < total - 1) {
-      goTo(current + 1);
+      setCurrent(current + 1);
     } else if (distance < 0 && current > 0) {
-      goTo(current - 1);
+      setCurrent(current - 1);
     }
-  }, [current, total, goTo]);
-
-  // Compute visible dot window
-  const visibleDots = useMemo(() => {
-    if (total <= maxDots) {
-      return { start: 0, end: total };
-    }
-    // Keep current dot roughly centered in the window
-    const half = Math.floor(maxDots / 2);
-    let start = current - half;
-    let end = start + maxDots;
-
-    if (start < 0) {
-      start = 0;
-      end = maxDots;
-    } else if (end > total) {
-      end = total;
-      start = end - maxDots;
-    }
-
-    return { start, end };
-  }, [current, total, maxDots]);
+  }, [current, total]);
 
   if (total === 0) {
     return (
@@ -103,9 +68,6 @@ export function ImageCarousel({
     );
   }
 
-  const showDots = total > 1;
-  const useWindowing = total > maxDots;
-
   return (
     <div
       ref={containerRef}
@@ -113,8 +75,6 @@ export function ImageCarousel({
       onTouchStart={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       <div
         className="flex transition-transform duration-300 ease-out h-full"
@@ -132,64 +92,20 @@ export function ImageCarousel({
         ))}
       </div>
 
-      {/* Dot indicators — Pasito-style with windowing + fill animation */}
-      {showDots && (
-        <div className="absolute bottom-2.5 left-0 right-0 flex justify-center items-center gap-1">
-          {/* Left overflow indicator */}
-          {useWindowing && visibleDots.start > 0 && (
-            <span className="w-1 h-1 rounded-full bg-white/30 flex-shrink-0" />
-          )}
-
-          {Array.from({ length: visibleDots.end - visibleDots.start }, (_, i) => {
-            const dotIndex = visibleDots.start + i;
-            const isActive = dotIndex === current;
-
-            return (
-              <button
-                key={dotIndex}
-                onClick={(e) => { e.stopPropagation(); goTo(dotIndex); }}
-                className={`h-1.5 rounded-full transition-all duration-200 flex-shrink-0 ${
-                  isActive ? 'w-5' : 'w-1.5'
-                }`}
-                style={{
-                  background: isActive ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.5)',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
-                aria-label={`View photo ${dotIndex + 1}`}
-              >
-                {/* Fill bar for active dot (auto-play timer) */}
-                {isActive && autoPlayInterval > 0 && !isHovered && (
-                  <span
-                    key={autoPlayKey}
-                    className="absolute inset-0 rounded-full bg-white origin-left"
-                    style={{
-                      animation: `dotFill ${autoPlayInterval}ms linear forwards`,
-                    }}
-                  />
-                )}
-                {/* Static fill for active dot when no autoplay or hovered */}
-                {isActive && (autoPlayInterval <= 0 || isHovered) && (
-                  <span className="absolute inset-0 rounded-full bg-white" />
-                )}
-              </button>
-            );
-          })}
-
-          {/* Right overflow indicator */}
-          {useWindowing && visibleDots.end < total && (
-            <span className="w-1 h-1 rounded-full bg-white/30 flex-shrink-0" />
-          )}
+      {/* Pasito stepper dots */}
+      {total > 1 && (
+        <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+          <Stepper
+            count={total}
+            active={current}
+            onStepClick={setCurrent}
+            maxVisible={maxDots}
+            filling={autoPlay.filling}
+            fillDuration={autoPlay.fillDuration}
+            className="pasito-carousel"
+          />
         </div>
       )}
-
-      {/* Keyframe for fill animation */}
-      <style>{`
-        @keyframes dotFill {
-          from { transform: scaleX(0); }
-          to { transform: scaleX(1); }
-        }
-      `}</style>
     </div>
   );
 }
