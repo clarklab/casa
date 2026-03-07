@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Stepper, useAutoPlay } from 'pasito/react';
 import 'pasito/styles.css';
 import { api } from '@/lib/api';
@@ -30,14 +30,22 @@ export function ImageCarousel({
   const total = imageKeys.length;
   const minSwipeDistance = 50;
 
+  const shouldAutoPlay = autoPlayInterval > 0 && total > 1;
   const autoPlay = useAutoPlay({
     count: total,
     active: current,
     onStepChange: setCurrent,
     stepDuration: autoPlayInterval || 3000,
     loop: true,
-    enabled: autoPlayInterval > 0 && total > 1,
+    enabled: shouldAutoPlay,
   });
+
+  // Auto-start playback on mount when autoplay is enabled
+  useEffect(() => {
+    if (shouldAutoPlay && !autoPlay.playing) {
+      autoPlay.toggle();
+    }
+  }, [shouldAutoPlay]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onTouchStart = useCallback((e: React.TouchEvent) => {
     touchEnd.current = null;
