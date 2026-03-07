@@ -156,14 +156,15 @@ body {
 /* Pasito stepper — themed for carousel overlay on images */
 .pasito-carousel {
   --pill-dot-size: 6px;
-  --pill-active-width: 20px;
+  --pill-active-width: 18px;
   --pill-gap: 4px;
-  --pill-bg: rgba(255, 255, 255, 0.45);
-  --pill-active-bg: rgba(255, 255, 255, 0.35);
-  --pill-fill-bg: rgba(255, 255, 255, 1);
-  --pill-container-bg: transparent;
+  --pill-bg: rgba(255, 255, 255, 0.4);
+  --pill-active-bg: rgba(255, 255, 255, 0.95);
+  --pill-fill-bg: rgba(255, 255, 255, 0.95);
+  --pill-container-bg: rgba(0, 0, 0, 0.25);
   --pill-container-border: transparent;
   --pill-container-radius: 999px;
+  padding: 4px 8px;
 }
 
 /* Safe area padding for notch devices */
