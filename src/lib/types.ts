@@ -80,6 +80,7 @@ export interface ListingSummary {
   isFavorited: boolean;
   isArchived: boolean;
   rating?: number;
+  ratings?: Record<string, number>;
   tags: string[];
   imageKeys: string[];
   sourceSite: string;
@@ -156,6 +157,15 @@ export interface ManualListingRequest {
 
 export interface DeleteListingRequest {
   passcode: string;
+}
+
+// Turd detection — both Clark AND Angie rated ≤ 2
+export function isTurd(listing: Pick<ListingSummary, 'ratings'>): boolean {
+  const r = listing.ratings;
+  if (!r) return false;
+  const clark = r['Clark'];
+  const angie = r['Angie'];
+  return clark != null && angie != null && clark <= 2 && angie <= 2;
 }
 
 // Filter types

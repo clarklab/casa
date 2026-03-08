@@ -167,6 +167,32 @@ body {
   padding: 4px 8px;
 }
 
+/* Turd stamp — postal / rubber stamp style */
+@keyframes turdStamp {
+  0% { transform: scale(3) rotate(-20deg); opacity: 0; }
+  50% { transform: scale(0.9) rotate(-12deg); opacity: 1; }
+  70% { transform: scale(1.05) rotate(-12deg); }
+  100% { transform: scale(1) rotate(-12deg); opacity: 1; }
+}
+
+.turd-stamp {
+  font-family: 'Google Sans Flex', Impact, sans-serif;
+  font-size: 48px;
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: #b91c1c;
+  border: 6px solid #b91c1c;
+  border-radius: 8px;
+  padding: 4px 18px;
+  text-transform: uppercase;
+  transform: rotate(-12deg);
+  opacity: 0.85;
+  mix-blend-mode: multiply;
+  background: rgba(255, 255, 255, 0.15);
+  /* Double-border postal stamp effect */
+  box-shadow: inset 0 0 0 3px #b91c1c;
+}
+
 /* Safe area padding for notch devices */
 .safe-area-top {
   padding-top: calc(env(safe-area-inset-top, 0px) + 0.75rem);

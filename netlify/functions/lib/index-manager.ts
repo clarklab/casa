@@ -42,6 +42,7 @@ export function listingToSummary(listing: Listing): ListingSummary {
             : listing.rating;
         })()
       : listing.rating,
+    ratings: listing.ratings,
     tags: listing.tags,
     imageKeys: listing.imageKeys,
     sourceSite: listing.sourceSite,
