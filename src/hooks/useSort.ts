@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { SortField, SortDirection, ListingSummary } from '@/lib/types';
+import { type SortField, type SortDirection, type ListingSummary, isTurd } from '@/lib/types';
 import { haversineDistance } from '@/lib/geo';
 import { FRIENDS_LOCATION } from '@/lib/constants';
 
@@ -19,6 +19,11 @@ export function useSort() {
   const sortListings = useCallback(
     (listings: ListingSummary[]) => {
       return [...listings].sort((a, b) => {
+        // Turds always sink to the bottom
+        const aTurd = isTurd(a);
+        const bTurd = isTurd(b);
+        if (aTurd !== bTurd) return aTurd ? 1 : -1;
+
         let aVal: number;
         let bVal: number;
 

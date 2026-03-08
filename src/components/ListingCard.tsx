@@ -1,5 +1,5 @@
 import { useNavigate } from '@tanstack/react-router';
-import type { ListingSummary } from '@/lib/types';
+import { type ListingSummary, isTurd } from '@/lib/types';
 import { formatPriceFull, formatSqft, formatDaysOnMarket, formatDistance } from '@/lib/format';
 import { haversineDistance } from '@/lib/geo';
 import { FRIENDS_LOCATION } from '@/lib/constants';
@@ -13,6 +13,7 @@ interface ListingCardProps {
 
 export function ListingCard({ listing, isNew }: ListingCardProps) {
   const navigate = useNavigate();
+  const turd = isTurd(listing);
 
   const statusBadge = listing.status !== 'active' ? (
     <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
@@ -32,21 +33,37 @@ export function ListingCard({ listing, isNew }: ListingCardProps) {
   return (
     <div
       onClick={() => navigate({ to: '/listings/$id', params: { id: listing.id } })}
-      className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden active:scale-[0.99] transition-transform cursor-pointer"
+      className={`bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden active:scale-[0.99] transition-transform cursor-pointer${turd ? ' opacity-50 grayscale-[40%]' : ''}`}
       style={isNew ? {
         animation: 'cardReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both, glowPulse 0.6s ease-out 0.35s both',
         willChange: 'transform, opacity, box-shadow',
       } : undefined}
     >
-      {/* Image carousel */}
-      <ImageCarousel
-        imageKeys={listing.imageKeys}
-        alt={listing.address}
-        className="aspect-[16/10]"
-        viewTransitionName={`listing-image-${listing.id}`}
-        maxDots={7}
-        autoPlayInterval={4000}
-      />
+      {/* Image carousel + turd overlays */}
+      <div className="relative">
+        <ImageCarousel
+          imageKeys={listing.imageKeys}
+          alt={listing.address}
+          className="aspect-[16/10]"
+          viewTransitionName={`listing-image-${listing.id}`}
+          maxDots={7}
+          autoPlayInterval={4000}
+        />
+        {turd && (
+          <>
+            {/* Big poop emoji over the image */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <span className="text-7xl drop-shadow-lg" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }}>💩</span>
+            </div>
+            {/* Postal stamp "TURD" */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ animation: 'turdStamp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both' }}>
+              <div className="turd-stamp">
+                TURD
+              </div>
+            </div>
+          </>
+        )}
+      </div>
 
       {/* Card content */}
       <div className="p-3.5">

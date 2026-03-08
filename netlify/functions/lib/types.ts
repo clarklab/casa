@@ -73,6 +73,7 @@ export interface ListingSummary {
   isFavorited: boolean;
   isArchived: boolean;
   rating?: number;
+  ratings?: Record<string, number>;
   tags: string[];
   imageKeys: string[];
   sourceSite: string;
