@@ -47,7 +47,7 @@ export function ListingCard({ listing, isNew }: ListingCardProps) {
           className="aspect-[16/10]"
           viewTransitionName={`listing-image-${listing.id}`}
           maxDots={7}
-          autoPlayInterval={4000}
+          autoPlayInterval={0}
         />
         {turd && (
           <>

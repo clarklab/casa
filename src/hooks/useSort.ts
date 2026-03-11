@@ -4,7 +4,7 @@ import { haversineDistance } from '@/lib/geo';
 import { FRIENDS_LOCATION } from '@/lib/constants';
 
 export function useSort() {
-  const [field, setField] = useState<SortField>('price');
+  const [field, setField] = useState<SortField>('createdAt');
   const [direction, setDirection] = useState<SortDirection>('desc');
 
   const toggleSort = useCallback((newField: SortField) => {
