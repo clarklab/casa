@@ -50,7 +50,7 @@ export function FilterBar({
         <div className="relative">
         <div className="flex gap-2 overflow-x-auto hide-scrollbar">
           {/* Sort */}
-          <button onClick={() => setActiveSheet('sort')} className={pillClass(sortField !== 'price')}>
+          <button onClick={() => setActiveSheet('sort')} className={pillClass(sortField !== 'createdAt')}>
             {icon(SORT_ICONS[sortField] || 'sort')} {SORT_OPTIONS.find((o) => o.field === sortField)?.label || 'Sort'} {sortDirection === 'asc' ? '↑' : '↓'}
           </button>
 

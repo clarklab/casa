@@ -164,7 +164,9 @@ body {
   --pill-container-bg: rgba(0, 0, 0, 0.25);
   --pill-container-border: transparent;
   --pill-container-radius: 999px;
-  padding: 4px 8px;
+  padding: 4px 4px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Turd stamp — postal / rubber stamp style */
