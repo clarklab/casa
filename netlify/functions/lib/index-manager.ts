@@ -49,6 +49,9 @@ export function listingToSummary(listing: Listing): ListingSummary {
     createdAt: listing.createdAt,
     addedBy: listing.addedBy,
     noteCount: listing.notes.length,
+    latestNoteText: listing.notes.length > 0
+      ? listing.notes.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0].text
+      : undefined,
     propertyType: listing.propertyType,
   };
 }

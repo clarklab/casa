@@ -49,6 +49,13 @@ export function ListingCard({ listing, isNew }: ListingCardProps) {
           maxDots={7}
           autoPlayInterval={0}
         />
+        {listing.latestNoteText && (
+          <div className="absolute bottom-2 right-2 z-10 max-w-[60%] pointer-events-none">
+            <div className="bg-black/60 backdrop-blur-sm text-white text-[10px] leading-tight px-2 py-1 rounded-lg truncate">
+              {listing.latestNoteText}
+            </div>
+          </div>
+        )}
         {turd && (
           <>
             {/* Big poop emoji over the image */}

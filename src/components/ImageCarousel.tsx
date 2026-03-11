@@ -102,7 +102,7 @@ export function ImageCarousel({
 
       {/* Pasito stepper dots */}
       {total > 1 && (
-        <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+        <div className="absolute bottom-2 left-2 flex justify-start">
           <Stepper
             count={total}
             active={current}

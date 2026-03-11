@@ -48,7 +48,7 @@ export default async (req: Request, context: Context) => {
     await store.setJSON(`listing:${listingId}`, listing);
 
     // Update note count in index
-    await updateListingInIndex(listingId, { noteCount: listing.notes.length });
+    await updateListingInIndex(listingId, { noteCount: listing.notes.length, latestNoteText: note.text });
 
     return new Response(JSON.stringify({ success: true, note }), {
       status: 200,

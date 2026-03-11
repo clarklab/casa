@@ -80,6 +80,7 @@ export interface ListingSummary {
   createdAt: string;
   addedBy: string;
   noteCount: number;
+  latestNoteText?: string;
   propertyType?: string;
 }
 
