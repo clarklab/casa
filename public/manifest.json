@@ -7,11 +7,18 @@
   "background_color": "#0f172a",
   "theme_color": "#0284c7",
   "orientation": "portrait",
+  "categories": ["lifestyle", "utilities"],
   "icons": [
     {
       "src": "/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ]
 }
