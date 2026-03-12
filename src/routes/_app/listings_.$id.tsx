@@ -94,7 +94,17 @@ function ListingDetailPage() {
           </svg>
           Back
         </button>
-        <div className="w-8" />
+        {listing.sourceUrl && (
+          <a
+            href={listing.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3.5 py-1.5 bg-casa-600 text-white text-sm font-medium rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            View
+          </a>
+        )}
       </header>
 
       {/* Image carousel */}
