@@ -4,8 +4,8 @@
   "description": "Visual home bookmarking tool",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0284c7",
+  "background_color": "#ff5733",
+  "theme_color": "#ff5733",
   "orientation": "portrait",
   "categories": ["lifestyle", "utilities"],
   "icons": [
@@ -15,7 +15,7 @@
       "type": "image/svg+xml"
     },
     {
-      "src": "/favicon.svg",
+      "src": "/icon-maskable.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "maskable"
