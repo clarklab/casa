@@ -42,7 +42,9 @@ export const api = {
   },
 
   getListing(id: string) {
-    return fetchJSON<ListingDetailResponse>(`${API_BASE}/listings/${id}`);
+    return fetchJSON<ListingDetailResponse>(`${API_BASE}/listings/${id}`, {
+      cache: 'no-cache',
+    });
   },
 
   updateListing(id: string, data: UpdateListingRequest) {

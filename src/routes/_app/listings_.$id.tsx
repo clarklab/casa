@@ -50,12 +50,9 @@ function ListingDetailPage() {
   }
 
   const handleRating = (name: string, value: number) => {
-    const newRatings = { ...(listing.ratings || {}), [name]: value };
-    // If rating is 0, remove that person's rating
-    if (value === 0) {
-      delete newRatings[name];
-    }
-    updateListing.mutate({ id, updates: { ratings: newRatings } });
+    // Send only the changed rating — server merges atomically with existing ratings.
+    // Value of 0 tells the server to delete that person's rating.
+    updateListing.mutate({ id, updates: { ratings: { [name]: value } } });
   };
 
   const handleDelete = async () => {

@@ -42,20 +42,24 @@ export default async (req: Request, context: Context) => {
       });
     }
 
-    // Apply allowed updates
-    const allowedFields = ['rating', 'ratings', 'isFavorited', 'isArchived', 'tags', 'status'] as const;
+    // Apply allowed updates (ratings handled separately below)
+    const allowedFields = ['isFavorited', 'isArchived', 'tags', 'status'] as const;
     for (const field of allowedFields) {
       if (field in updates) {
         (listing as any)[field] = updates[field];
       }
     }
 
-    // Merge per-person ratings (don't overwrite the whole object)
+    // Merge per-person ratings atomically against server state
     if (updates.ratings) {
-      const merged: Record<string, number> = {
-        ...(listing.ratings || {}),
-        ...(updates.ratings as Record<string, number>),
-      };
+      const merged: Record<string, number> = { ...(listing.ratings || {}) };
+      for (const [name, value] of Object.entries(updates.ratings as Record<string, number>)) {
+        if (value === 0) {
+          delete merged[name];
+        } else {
+          merged[name] = value;
+        }
+      }
       listing.ratings = merged;
       // Recompute average rating from per-person ratings
       const values = Object.values(merged);
