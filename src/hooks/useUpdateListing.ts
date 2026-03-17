@@ -16,17 +16,32 @@ export function useUpdateListing() {
       await queryClient.cancelQueries({ queryKey: ['listing', id] });
       const prev = queryClient.getQueryData(['listings']) as { listings: ListingSummary[] } | undefined;
       const prevDetail = queryClient.getQueryData(['listing', id]) as Record<string, any> | undefined;
+      // Helper: merge partial ratings into existing ratings, handling 0 as deletion
+      const mergeRatings = (existing: Record<string, number> | undefined, partial: Record<string, number>) => {
+        const merged = { ...(existing || {}) };
+        for (const [name, value] of Object.entries(partial)) {
+          if (value === 0) {
+            delete merged[name];
+          } else {
+            merged[name] = value;
+          }
+        }
+        return merged;
+      };
+      const recomputeAvg = (ratings: Record<string, number>) => {
+        const vals = Object.values(ratings);
+        return vals.length > 0
+          ? Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10
+          : undefined;
+      };
       if (prev) {
         queryClient.setQueryData(['listings'], {
           listings: prev.listings.map((l) => {
             if (l.id !== id) return l;
             const merged = { ...l, ...updates };
-            // Recompute average rating for optimistic cache
             if (updates.ratings) {
-              const vals = Object.values(updates.ratings as Record<string, number>);
-              if (vals.length > 0) {
-                merged.rating = Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10;
-              }
+              merged.ratings = mergeRatings(l.ratings, updates.ratings as Record<string, number>);
+              merged.rating = recomputeAvg(merged.ratings);
             }
             return merged;
           }),
@@ -36,9 +51,14 @@ export function useUpdateListing() {
       // Query data shape is { listing: { ...fields } } (before select extracts .listing).
       if (prevDetail) {
         const detail = prevDetail as { listing: Record<string, any> };
+        const updatedListing = { ...detail.listing, ...updates };
+        if (updates.ratings) {
+          updatedListing.ratings = mergeRatings(detail.listing.ratings, updates.ratings as Record<string, number>);
+          updatedListing.rating = recomputeAvg(updatedListing.ratings);
+        }
         queryClient.setQueryData(['listing', id], {
           ...detail,
-          listing: { ...detail.listing, ...updates },
+          listing: updatedListing,
         });
       }
       return { prev, prevDetail };
