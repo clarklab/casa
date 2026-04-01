@@ -42,6 +42,7 @@ export function FilterBar({
     pricePerSqft: 'payments',
     daysOnMarket: 'calendar_add_on',
     rating: 'family_star',
+    visited: 'visibility',
   };
 
   return (

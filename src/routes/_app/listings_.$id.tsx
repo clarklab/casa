@@ -113,7 +113,7 @@ function ListingDetailPage() {
       />
 
       <div className="p-4 space-y-5">
-        {/* Price + status */}
+        {/* Price + status + visited */}
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="text-2xl font-bold text-slate-900 dark:text-white">
@@ -128,6 +128,19 @@ function ListingDetailPage() {
                 {listing.status.replace('_', ' ')}
               </span>
             )}
+            <button
+              onClick={() => updateListing.mutate({ id, updates: { visited: !listing.visited } })}
+              className={`ml-auto p-2 rounded-full flex items-center justify-center transition-colors ${
+                listing.visited 
+                  ? 'bg-casa-100 text-casa-600 dark:bg-casa-900/30 dark:text-casa-400' 
+                  : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'
+              }`}
+              title={listing.visited ? "Mark as not visited" : "Mark as visited"}
+            >
+              <span className="material-symbols-outlined text-2xl">
+                {listing.visited ? 'visibility' : 'visibility_off'}
+              </span>
+            </button>
           </div>
           <p className="text-base text-slate-700 dark:text-slate-300">{listing.address}</p>
           <p className="text-sm text-slate-500 dark:text-slate-400">

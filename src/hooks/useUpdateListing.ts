@@ -72,8 +72,11 @@ export function useUpdateListing() {
       }
     },
     onSettled: (_data, _err, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
-      queryClient.invalidateQueries({ queryKey: ['listing', id] });
+      // Delay invalidation to account for blob store read-after-write consistency gap
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['listings'] });
+        queryClient.invalidateQueries({ queryKey: ['listing', id] });
+      }, 2000);
     },
   });
 }

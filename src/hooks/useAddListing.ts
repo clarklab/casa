@@ -1,9 +1,11 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { getKnownListingIds, setKnownListingIds } from '@/lib/notifications';
 import type { ScrapeRequest } from '@/lib/types';
 
 export function useAddListing() {
+  const queryClient = useQueryClient();
+  
   return useMutation({
     mutationFn: (data: ScrapeRequest) => api.scrape(data),
     onSuccess: (result) => {
@@ -14,6 +16,7 @@ export function useAddListing() {
         known.add(result.listing.id);
         setKnownListingIds(known);
       }
+      queryClient.invalidateQueries({ queryKey: ['listings'] });
     },
   });
 }
