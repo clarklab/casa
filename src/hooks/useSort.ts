@@ -52,6 +52,10 @@ export function useSort() {
             aVal = a.latitude && a.longitude ? haversineDistance(a.latitude, a.longitude, FRIENDS_LOCATION.latitude, FRIENDS_LOCATION.longitude) : Infinity;
             bVal = b.latitude && b.longitude ? haversineDistance(b.latitude, b.longitude, FRIENDS_LOCATION.latitude, FRIENDS_LOCATION.longitude) : Infinity;
             break;
+          case 'visited':
+            aVal = a.visited ? 1 : 0;
+            bVal = b.visited ? 1 : 0;
+            break;
           case 'createdAt':
           default:
             aVal = new Date(a.createdAt).getTime();

@@ -48,6 +48,7 @@ export interface Listing {
   tags: string[];
   isFavorited: boolean;
   isArchived: boolean;
+  visited?: boolean;
 
   // Raw scraped data for debugging
   rawData?: Record<string, unknown>;
@@ -79,6 +80,7 @@ export interface ListingSummary {
   longitude: number;
   isFavorited: boolean;
   isArchived: boolean;
+  visited?: boolean;
   rating?: number;
   ratings?: Record<string, number>;
   tags: string[];
@@ -119,7 +121,7 @@ export interface ListingDetailResponse {
 
 export interface UpdateListingRequest {
   passcode: string;
-  updates: Partial<Pick<Listing, 'rating' | 'ratings' | 'isFavorited' | 'isArchived' | 'tags' | 'status'>>;
+  updates: Partial<Pick<Listing, 'rating' | 'ratings' | 'isFavorited' | 'isArchived' | 'tags' | 'status' | 'visited'>>;
 }
 
 export interface AddNoteRequest {
@@ -188,7 +190,7 @@ export interface FilterState {
   tags?: string[];
 }
 
-export type SortField = 'createdAt' | 'price' | 'sqft' | 'pricePerSqft' | 'daysOnMarket' | 'rating' | 'distance';
+export type SortField = 'createdAt' | 'price' | 'sqft' | 'pricePerSqft' | 'daysOnMarket' | 'rating' | 'distance' | 'visited';
 export type SortDirection = 'asc' | 'desc';
 
 export interface SortState {

@@ -35,6 +35,7 @@ export const SORT_OPTIONS = [
   { field: 'pricePerSqft', label: 'Price/Sqft' },
   { field: 'daysOnMarket', label: 'Days Listed' },
   { field: 'rating', label: 'Rating' },
+  { field: 'visited', label: 'Visited' },
 ] as const;
 
 // Passcode config

@@ -81,6 +81,11 @@ export function ListingCard({ listing, isNew }: ListingCardProps) {
               {formatPriceFull(listing.price)}
             </span>
             {statusBadge}
+            {listing.visited && (
+              <span className="material-symbols-outlined text-casa-600 dark:text-casa-400" style={{ fontSize: 20 }} title="Visited">
+                visibility
+              </span>
+            )}
           </div>
           <RatingStars rating={listing.rating} />
         </div>

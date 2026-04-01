@@ -34,6 +34,7 @@ export function listingToSummary(listing: Listing): ListingSummary {
     longitude: listing.longitude,
     isFavorited: listing.isFavorited,
     isArchived: listing.isArchived,
+    visited: listing.visited,
     rating: listing.ratings
       ? (() => {
           const vals = Object.values(listing.ratings);

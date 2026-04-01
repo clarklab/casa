@@ -43,7 +43,7 @@ export default async (req: Request, context: Context) => {
     }
 
     // Apply allowed updates (ratings handled separately below)
-    const allowedFields = ['isFavorited', 'isArchived', 'tags', 'status'] as const;
+    const allowedFields = ['isFavorited', 'isArchived', 'tags', 'status', 'visited'] as const;
     for (const field of allowedFields) {
       if (field in updates) {
         (listing as any)[field] = updates[field];

@@ -42,6 +42,7 @@ export interface Listing {
   tags: string[];
   isFavorited: boolean;
   isArchived: boolean;
+  visited?: boolean;
 
   rawData?: Record<string, unknown>;
 }
@@ -72,6 +73,7 @@ export interface ListingSummary {
   longitude: number;
   isFavorited: boolean;
   isArchived: boolean;
+  visited?: boolean;
   rating?: number;
   ratings?: Record<string, number>;
   tags: string[];
